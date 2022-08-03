@@ -1,110 +1,141 @@
+#!/usr/bin/env python
+
 import argparse
+from collections import OrderedDict
 from curses import meta
-from typing import OrderedDict
+import pathlib
 
-from Filter import Filter
+from Filter import Action, Comparison, Condition, Filter
 
 
-class ParseProps(argparse.Action):
+class KeyValueArg(argparse.Action):
     def __call__(
             self, parser, namespace,
             values, option_string=None):
         setattr(namespace, self.dest, OrderedDict())
 
         for value in values:
-            key, value = value.split('=')
+            key, value = "=" in value \
+                and value.split('=') \
+                or (value, None)
+
             getattr(namespace, self.dest)[key] = value
 
 
 def getArgs() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
+        prog='msgFilterRules.py',
         description='Generate filter rules for Thunderbird')
 
     parser.add_argument(
-        '-n', metavar='<name>', dest='name', type=str, required=True,
+        '-name', metavar='<name>', required=True, type=str,
         help='name of rule to add or modify')
 
     parser.add_argument(
-        '-r', '--replace', dest="do_replace_action", action='store_true',
-        help='replace pre-existing actions')
+        '-type', metavar='<type>', type=str, default='17',
+        help='set rule type')
 
     parser.add_argument(
-        '-v', metavar='<action-value>', dest='action_value', type=str,
-        help='path to destination of filtered items')
+        '-disabled', action='store_true',
+        help='set filter as disabled')
 
     parser.add_argument(
-        '-m', metavar='<mode>', dest="mode", type=str, choices=['OR', 'AND'], default='OR',
-        help='mode of operation, on condition (OR by default)')
+        '-actions', metavar='<action>', nargs='*', action=KeyValueArg,
+        help='actions to perform (in order), key=value if action has value')
 
     parser.add_argument(
-        '-c', dest='condition_file', type=str,
-        help='condition CSV file to parse, has 3 columns: EmailHeader,Operator,String')
+        '-condition-file', metavar='<file>', type=str,
+        help='CSV file with comparisons to add, columns: <email header>,<comparison>,<string>')
 
     parser.add_argument(
-        '-p', metavar='<key=value>', dest='props', nargs='*', action=ParseProps,
-        default=OrderedDict([('enabled', 'yes'), ('type', '17')]),
-        help='additional properties, by default: enabled=yes, type=17')
+        '-mode', metavar='<mode>', choices=['OR', 'AND'], type=str, default='OR',
+        help='mode of operation in condition, default: OR')
 
     parser.add_argument(
-        '-f', metavar='<rules-file>', dest='rules_file', type=str,
+        '-rules-file', metavar='<file>', type=str,
         help='path to pre-existing msgFilterRules.dat file')
 
     return parser.parse_args()
 
 
 def getFilterFromFile(filePath: str, filterName: str) -> tuple[Filter, str]:
-    filterRulesFile = open(filePath, 'r')
+    rulesFile = open(filePath, 'r')
+    line = rulesFile.readline()
 
-    theFilter = None
+    theFilter: Filter = None
     template = []
 
-    curFilter = None
-    for line in filterRulesFile:
-        key, value = line.partition("=")[::2]
-        value = value[1:-2]  # remove quotes from value
-
-        # print(f'{key}={value}')
+    lastAction = None
+    while line:
+        key, value = line.partition('=')[::2]
 
         if key == 'name':
+            value = value[1:-2]
             if value == filterName:
                 template.append('{}\n')
-                curFilter = Filter(value)
+                theFilter = Filter(value)
             else:
                 template.append(line)
-                theFilter = curFilter
-                curFilter = None           
-        elif curFilter:
-            curFilter.setProp(key, value)
+                if theFilter:
+                    break
+        elif theFilter:
+            value = value[1:-2]
+
+            if key == 'action':
+                lastAction = Action(value)
+                theFilter.actions.append(lastAction)
+            elif key == 'actionValue':
+                lastAction.value = value
+            elif key == 'condition':
+                theFilter = Condition.fromConditionStr(value)
+            else:
+                theFilter.props[key] = value
         else:
             template.append(line)
 
-    filterRulesFile.close()
-    return theFilter or curFilter, ''.join(template)
+        line = rulesFile.readline()
+
+    template.extend(rulesFile.readlines())
+
+    rulesFile.close()
+    return theFilter, ''.join(template)
+
+
+def addCondtionFileToFilter(filePath: str, theFilter: Filter):
+    comparisons = theFilter.condition.comparisons
+    with open(filePath, 'r') as conditionFile:
+        [comparisons.add(Comparison(*line.strip().split(',')))
+         for line in conditionFile]
 
 
 def processArgs(args: argparse.Namespace):
-    rulesFile = args.rules_file
     name = args.name
+    rulesFile = args.rules_file
 
-    theFilter, template = getFilterFromFile(rulesFile, name) if rulesFile \
-        else (Filter(name), 'version="9"\nlogging="no"\n{}\n')
+    if rulesFile:
+        theFilter, theTemplate = getFilterFromFile(rulesFile, name)
 
-    props: OrderedDict = args.props
-    for (key, value) in props.items():
-        theFilter.setProp(key, value)
+        if theFilter is None:
+            theFilter = Filter(name)
+            theTemplate += '{}\n'
+    else:
+        theFilter = Filter(name)
+        theTemplate = 'version="9"\nlogging="no"\n{}\n'
 
-    actions = args.action
-    actions and theFilter.replaceActions(actions) \
-        if args.do_replace_action \
-        else theFilter.setAction(actions)
+    theFilter.type = args.type
+    theFilter.enabled = not args.disabled
 
-    actionValue = args.action_value
-    actionValue and theFilter.setProp('actionValue', actionValue)
+    if actions := args.actions:
+        theFilter.actions = [Action(*item) for item in actions.items()]
 
-    mode = args.mode
-    mode and theFilter.setConditionMode(mode)
+    if conditionFile := args.condition_file:
+        with open(conditionFile) as conditionFile:
+            theFilter.condition.comparisons = \
+                {Comparison(*line.strip().split(',')) for line in conditionFile}
 
-    print(template.format(theFilter or ''), end='')
+    theFilter.condition.mode = args.mode
+
+    print(theTemplate.format(theFilter or ''), end='')
 
 
 args = getArgs()
