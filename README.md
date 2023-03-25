@@ -29,7 +29,7 @@ Here's an example of a YAML configuration file with a single filter rule:
 
 ```yml
 home: "imap://johndoe%40gmail.com@imap.gmail.com"
-main: "%5BExample%5D"
+main: "%5BGmail%5D"
 header:
   version: "9" # default
   logging: "no" # default
@@ -41,7 +41,7 @@ filters:
     actions:
       - action: Mark flagged
       - action: Move to folder
-        value: "{{home}}/{{main}}/Newsletters"
+        value: "{{home}}/Newsletters"
     condition:
       operator: OR # default
       criteria:
