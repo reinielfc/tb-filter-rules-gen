@@ -1,0 +1,32 @@
+# Virtual environment
+/.venv
+
+# Pipenv files
+Pipfile.lock
+
+# Compiled Python files
+__pycache__/
+*.pyc
+
+# Logs and temporary files
+logs/
+*.log
+*.swp
+*.swo
+*.pyc
+*.pyo
+
+# Environment variables
+.env
+.env.*
+
+# IDE files
+.idea/
+.vscode/
+
+# PyInstaller build and distribution directories
+/dist/
+/build/
+
+# PyInstaller spec files
+*.spec
