@@ -61,6 +61,6 @@ enabled="yes"
 type="17"
 action="Mark flagged"
 action="Move to folder"
-actionValue="imap://johndoe%40gmail.com@imap.gmail.com/%5BExample%5D/Newsletters"
+actionValue="imap://johndoe%40gmail.com@imap.gmail.com/%5BGmail%5D/Newsletters"
 condition="OR (from,ends with,exampleinsights.com) OR (from,ends with,industryupdate.com) OR (from,ends with,technewsletter.com) OR (from,is,updates@newsletter.example.com)"
 ```
