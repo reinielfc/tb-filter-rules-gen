@@ -1,0 +1,142 @@
+version: 1.0
+home: "imap://johndoe%40gmail.com@imap.gmail.com"
+main: "%5BGmail%5D"
+header:
+  version: "9" # default
+  logging: "no" # default
+filters:
+  - # NEWSLETTER
+    name: newsletter
+    enabled: "yes" # default
+    type: "17" # default (16 + 1)
+      # add types to mix and match (33 is not possible)
+      #   16 - Manually Run
+      #    1 - Getting New Mail: Filter before Junk Classification
+      #   32 - Getting New Mail: Filter after Junk Classification
+      #  128 - Archiving
+      #   64 - After Sending
+      #  256 - Periodically, every 10 minutes
+    actions:
+      # ------------------------------
+      # Move Message to:
+      #   { action: Move to folder, value: "{{home}}/SomeFolder" }
+      # Copy Message to:
+      #   { action: Copy to folder, value: "{{home}}/SomeFolder" }
+      # ------------------------------
+      # Forward Message to:
+      #   { action: Forward, value: email@example.com }
+      # ------------------------------
+      # Mark As Read:
+      #   { action: Mark read }
+      # Mark As Unread:
+      #   { action: Mark unread }
+      # Add Star:
+      #   { action: Mark flagged }
+      # Set Priority to:
+      #   { action: Change priority, value: "Highest" }
+      #   options: Highest, High, Normal, Low, Lowest
+      # Tag Message:
+      #   { action: AddTag, value: $label1 }
+      # Set Junk Status to:
+      #   { action: JunkScore, value: "0" }
+      #   options: 0 (Not Junk), 1 (Junk)
+      # ------------------------------
+      # Ignore Thread:
+      #   { action: Ignore thread }
+      # Ignore Subthread:
+      #   { action: Ignore subthread }
+      # Watch Thread:
+      #   { action: Watch thread }
+      # ------------------------------
+      # Stop Filter Execution:
+      #   { action: Stop execution }
+
+      - { action: Mark flagged }
+      - { action: Move to folder, value: "{{home}}/Newsletters" }
+    condition:
+      operator: OR # default (OR|AND)
+      criteria:
+        # Subject:
+        #   subject,
+        #   (contains|doesn't contain|is|isn't|begins with|ends with),
+        #   <string>
+
+        # From|To|Cc|To or Cc|From, To, Cc or Bcc:
+        #   from|to|cc|to or cc|all addresses,
+        #     (contains|doesn't contain|is|isn't|begins with|ends with),
+        #       <string>
+        #     (is in ab|isn't in ab),
+        #       <address book, eg. jsaddrbook://abook.sqlite>
+
+        # Body:
+        #   body,
+        #   (contains|doesn't contain|is|isn't),
+        #   <string>
+
+        # Date:
+        #   date,
+        #   (is|isn't|is before|is after),
+        #   <DD-Mon-YYYY, eg. 01-Apr-2023>
+
+        # Priority:
+        #   priority,
+        #   (is|isn't|is higher than|is lower than),
+        #   <Highest|High|Normal|Low|Lowest>
+
+        # Status:
+        #   status,
+        #   (is|isn't)
+        #   <Replied|Read|New|Forwarded|Starred>
+        
+        # Age In Days|Size (KB):
+        #   age in days|size,
+        #   (is|is less than|is greater than),
+        #   <amount>
+
+        # Tags:
+        #   tag,
+        #     (contains|doesn't contain|is|isn't),
+        #       $label<number>
+        #     (is empty|isn't empty)
+
+        # Expression Search (contains|doesn't contain):
+        #   Bcc:
+        #     expressionsearch#Bcc
+        #   To Somebody Only:
+        #     expressionsearch#toSomebodyOnly
+        #   Subject (Long):
+        #     expressionsearch#subjectSimple
+        #   Date Match (2011/01/01):
+        #     expressionsearch#dateMatch
+        #   Attachment Name/Type:
+        #     expressionsearch#attachmentNameOrType
+        #   XNote:
+        #     expressionsearch#XNote
+
+        # Expression Search (is before|is after):
+        #   Time (Every Day):
+        #     expressionsearch#dayTime,is before,
+
+        # Expression Search (matches|doesn't match):
+        #   Subject (Regex):
+        #     expressionsearch#subjectRegex
+        #   Header (Regex):
+        #     expressionsearch#headerRegex
+        #   From (Regex):
+        #     expressionsearch#fromRegex
+        #   Recipient (To/Cc/Bcc Regex):
+        #     expressionsearch#toRegex
+        #   Body (Regex):
+        #     expressionsearch#bodyRegex
+
+        - from,ends with,technewsletter.com
+        - from,ends with,industryupdate.com
+        - from,ends with,exampleinsights.com
+        - from,is,updates@newsletter.example.com
+
+
+
+
+
+
+
