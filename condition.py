@@ -99,5 +99,4 @@ class Comparing:
     status = StatusComparison("status")
     tag = TagComparison("tag")
 
-
 print(Comparing.tag.isempty())  # -> subject,begins with,test
