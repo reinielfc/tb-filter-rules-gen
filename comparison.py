@@ -135,7 +135,7 @@ class ExpressionSearch:
 	subjectregex = ExpressionSearchMatch("subjectRegex")
 	headerregex = ExpressionSearchMatch("headerRegex")
 	senderregex = ExpressionSearchMatch("fromRegex")
-	receiverregex = ExpressionSearchMatch("toRegex")
+	recipientregex = ExpressionSearchMatch("toRegex")
 	bodyregex = ExpressionSearchMatch("bodyRegex")
 
 
@@ -144,9 +144,9 @@ class ComparisonListBuilder:
 
 	# address
 	sender = AddressComparison("from")
-	receiver = AddressComparison("to")
+	recipient = AddressComparison("to")
 	cc = AddressComparison("cc")
-	receiverorcc = AddressComparison("to or cc")
+	recipientorcc = AddressComparison("to or cc")
 	alladdresses = AddressComparison("all addresses")
 
 	body = BigStringComparison("body")
