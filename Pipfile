@@ -4,10 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-aenum = "*"
 
 [dev-packages]
-pyinstaller = "*"
 
 [requires]
 python_version = "3.11"
