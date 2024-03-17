@@ -23,6 +23,6 @@ class ConditionList:
 			self._comparisons.append(c)
 
 		return self
-	
+
 	def __str__(self) -> str:
 		return f"{self._operator} " + f" {self._operator} ".join([str(c) for c in self._comparisons])
