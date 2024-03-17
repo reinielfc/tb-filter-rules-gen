@@ -4,6 +4,7 @@ from .condition import ConditionOperator, ConditionList
 from .comparison import Comparison
 from .rules import Rules
 
+
 class Enabled(Enum):
 	YES = "yes"
 	NO = "no"

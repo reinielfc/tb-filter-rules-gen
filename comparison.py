@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class Comparison:
 	def __init__(self, property: str, operator: str, criteria: str) -> "Comparison":
 		self._property = property
@@ -136,6 +137,7 @@ class ExpressionSearch:
 	senderregex = ExpressionSearchMatch("fromRegex")
 	receiverregex = ExpressionSearchMatch("toRegex")
 	bodyregex = ExpressionSearchMatch("bodyRegex")
+
 
 class ComparisonListBuilder:
 	subject = StringComparison("subject")
