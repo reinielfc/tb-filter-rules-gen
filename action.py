@@ -23,6 +23,10 @@ class Priority(Enum):
     LOW = "Low"
     LOWEST = "Lowest"
 
+class Tag(Enum):
+    REVIEW = "🔍 Review"
+    UPDATE = "⬆️ Update"
+    IMPORTANT = "❗IMPORTANT"
 
 class JunkScore(Enum):
     JUNK = 1
@@ -38,17 +42,26 @@ class ActionFunction:
     def actionwithvalue(action: str):
         return lambda v: Action(action, v)
 
+    @staticmethod
+    def actionwithpriority(action: str):
+        def f(value: Priority):
+            return Action(action, value)
+
+        return f
+
+    def actionwithtag(action: str):
+        def f(value: Tag | str):
+            return Action(action, value)
+
+        return f
+
+    @staticmethod
     def actionwithjunkscore(action: str):
         def f(value: JunkScore):
             return Action(action, value)
 
         return f
 
-    def actionwithpriority(action: str):
-        def f(value: Priority):
-            return Action(action, value)
-
-        return f
 
 
 class ActionBuilder:
@@ -61,7 +74,7 @@ class ActionBuilder:
     markunread = ActionFunction.action("Mark unread")  # Mark As Unread
     markflagged = ActionFunction.action("Mark flagged")  # Add Star
     changepriority = ActionFunction.actionwithpriority("Change priority")  # Set Priority to (options: Highest, High, Normal, Low, Lowest)
-    addtag = ActionFunction.actionwithvalue("AddTag")  # Tag Message
+    addtag = ActionFunction.actionwithtag("AddTag")  # Tag Message
     junkscore = ActionFunction.actionwithjunkscore("JunkScore")  # Set Junk Status to (options: 0 (Not Junk), 1 (Junk))
 
     ignorethread = ActionFunction.action("Ignore thread")  # Ignore Thread
