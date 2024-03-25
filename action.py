@@ -24,9 +24,9 @@ class Priority(Enum):
     LOWEST = "Lowest"
 
 class Tag(Enum):
-    REVIEW = "🔍 Review"
-    UPDATE = "⬆️ Update"
-    IMPORTANT = "❗IMPORTANT"
+    REVIEW = "review"
+    UPDATE = "update"
+    IMPORTANT = "important"
 
 class JunkScore(Enum):
     JUNK = 1
@@ -44,21 +44,21 @@ class ActionFunction:
 
     @staticmethod
     def actionwithpriority(action: str):
-        def f(value: Priority):
-            return Action(action, value)
+        def f(priority: Priority):
+            return Action(action, priority.value)
 
         return f
 
     def actionwithtag(action: str):
-        def f(value: Tag | str):
-            return Action(action, value)
+        def f(tag: Tag):
+            return Action(action, tag.value)
 
         return f
 
     @staticmethod
     def actionwithjunkscore(action: str):
-        def f(value: JunkScore):
-            return Action(action, value)
+        def f(junkscore: JunkScore):
+            return Action(action, junkscore.value)
 
         return f
 
